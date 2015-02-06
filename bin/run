@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+pre_command=${1-""}
+
 #fail fast
 set -eo pipefail
 
@@ -13,6 +15,10 @@ release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$TMPDIR")
 
 # source any environment scripts
 source .profile.d/*
+
+if [ "$pre_command" != "" ]; then
+  eval $pre_command
+fi
 
 # determine if web process defined in release step
 web=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
