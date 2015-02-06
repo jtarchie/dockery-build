@@ -30,4 +30,4 @@ docker run \
 -e BUILDPACK_CACHE_DIR=/home/vcap/tmp/cache \
 -e DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres" \
 -p 5000:5000 \
--i -t dockery-build bash -c /var/vcap/dockery/bin/run "$pre_command"
+-i -t dockery-build bash -c "/var/vcap/dockery/bin/run '$pre_command'"
