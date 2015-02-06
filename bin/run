@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+#fail fast
+set -eo pipefail
+
+cp -r /var/vcap/src /home/vcap/app
+cd /home/vcap/app
+
+#run buildpack
+/var/vcap/buildpack/bin/detect "$(pwd)"
+/var/vcap/buildpack/bin/compile "$(pwd)" "$TMPDIR"
+release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$TMPDIR")
+
+# source any environment scripts
+source .profile.d/*
+
+# determine if web process defined in release step
+web=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
+if [ "$web" != "" ]; then
+  eval $web
+fi
