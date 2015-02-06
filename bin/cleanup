@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-docker stop postgres
-docker rm postgres
+docker stop postgresdb
+docker rm postgresdb
 docker stop buildpack
 docker rm buildpack
 rm -Rf tmp/

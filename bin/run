@@ -9,9 +9,9 @@ cp -r /var/vcap/src /home/vcap/app
 cd /home/vcap/app
 
 #run buildpack
-/var/vcap/buildpack/bin/detect "$(pwd)"
-/var/vcap/buildpack/bin/compile "$(pwd)" "$TMPDIR"
-release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$TMPDIR")
+/var/vcap/buildpack/bin/detect "$(pwd)" "$BUILDPACK_CACHE_DIR"
+/var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE_DIR"
+release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$BUILDPACK_CACHE_DIR")
 
 # source any environment scripts
 source .profile.d/*
