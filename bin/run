@@ -1,27 +1,71 @@
 #!/usr/bin/env bash
 
-pre_command=${1-""}
-
 #fail fast
 set -eo pipefail
+
+start_command=${1-""}
+env_vars=()
+
+while getopts ":c:e:" o; do
+  case "${o}" in
+    c)
+      start_command=${OPTARG};;
+    e)
+      echo "OPTARG=$OPTARG"
+      env_vars+=("$OPTARG");;
+  esac
+done
+
+export BUILDPACK_CACHE="/home/vcap/tmp/cache"
+export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
+export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
+export STAGING_TIMEOUT="1000"
+export VCAP_APPLICATION="{}"
+export VCAP_SERVICES="[]"
 
 cp -r /var/vcap/src /home/vcap/app
 cd /home/vcap/app
 
+echo "Staging app with buildpack"
+
 #run buildpack
-/var/vcap/buildpack/bin/detect "$(pwd)" "$BUILDPACK_CACHE_DIR"
-/var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE_DIR"
-release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$BUILDPACK_CACHE_DIR")
+/var/vcap/buildpack/bin/detect "$(pwd)" "$BUILDPACK_CACHE"
+/var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE"
+release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$BUILDPACK_CACHE")
 
 # source any environment scripts
-source .profile.d/*
-
-if [ "$pre_command" != "" ]; then
-  eval $pre_command
+if [ -d .profile.d ]; then
+  for i in .profile.d/*.sh; do
+    if [ -r "$i" ]; then
+      source "$i"
+    fi
+  done
 fi
 
+echo "Starting web app"
+
+# unset variables that are not provided in app running
+unset BUILDPACK_CACHE
+unset STAGING_TIMEOUT
+
+export HOME="/home/vcap/app"
+export PORT="5000"
+export TMPDIR="/home/vcap/tmp"
+export VCAP_APP_HOST="0.0.0.0"
+export VCAP_APP_PORT=$PORT
+
+for env_var in "${env_vars[@]}"; do
+  echo "export $env_var"
+  eval "export $env_var"
+done
+
 # determine if web process defined in release step
-web=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
-if [ "$web" != "" ]; then
-  eval $web
+web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
+
+if [ "$start_command" != "" ]; then
+  eval "$start_command"
+else
+  if [ "$web_release" != "" ]; then
+    eval "$web_release"
+  fi
 fi

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-docker stop postgresdb
-docker rm postgresdb
-docker stop buildpack
-docker rm buildpack
+function cleanup() {
+  name=$1
+  docker ps -a | grep "$name" | awk '{print $1}' | xargs docker rm -f
+}
+
+cleanup 'postgres'
+cleanup 'dockery-build'
 rm -Rf tmp/

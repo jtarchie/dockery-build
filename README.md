@@ -12,7 +12,6 @@ boot2docker start
 $(boot2docker shellinit)
 ```
 
-
 # Usage
 
 ```sh
@@ -21,11 +20,10 @@ git clone https://github.com/jtarchie/dockery-build
 cd dockery-build
 
 # build the required docker images
-docker build -t dockery-build .
-docker pull postgres
+./bin/init
 
 # run the buildpack script (detect, compile, and release)
-./bin/build <buildpack_dir> <app_dir>
+./bin/deploy <buildpack_dir> <app_dir>
 
 # look at your pretty app -- the port is mapped to localhost via docker
 open http://127.0.0.1:5000/

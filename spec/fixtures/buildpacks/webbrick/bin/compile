@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Compiling Empty buildpack"
+exit 0

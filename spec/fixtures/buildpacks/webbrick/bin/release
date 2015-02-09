@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+echo "---"
+echo "default_process_types:"
+echo '  web: ruby -run -e httpd . -p $PORT'
+exit 0

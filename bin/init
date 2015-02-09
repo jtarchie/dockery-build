@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker pull postgres
+docker build -t dockery-build-lucid dockerfiles/lucid
