@@ -23,7 +23,8 @@ cd dockery-build
 ./bin/init
 
 # run the buildpack script (detect, compile, and release)
-./bin/deploy <buildpack_dir> <app_dir>
+./bin/deploy <buildpack_dir> <app_dir> [start command] [-e
+ENV_VAR=ENV_VALUE]
 
 # look at your pretty app -- the port is mapped to localhost via docker
 open http://127.0.0.1:5000/
@@ -31,6 +32,27 @@ open http://127.0.0.1:5000/
 # cleanup any running docker instances and tmp directories
 ./bin/cleanup
 ```
+
+# Deploying an app with a buildpack
+
+There are two steps to a `bin/run`, staging and runtime.
+
+## Staging
+
+The staging of an application uses the buildpack to compile and
+download the dependencies of an application.
+
+## Runtime
+
+The runtime will infer the start script of based on the `release`
+step of a buildpack or the provided `[start_command]` to the
+`bin/deploy` script.
+
+## Database
+
+Each application is provided with the service of a Postgres database. The
+environment variables `DATABASE_URL` is provided to both staging and
+runtime, so they it emulates a CloudFoundry service pipline.
 
 # Troubleshooting
 
