@@ -33,17 +33,6 @@ echo "Staging app with buildpack"
 /var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE"
 release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$BUILDPACK_CACHE")
 
-# source any environment scripts
-if [ -d .profile.d ]; then
-  for i in .profile.d/*.sh; do
-    if [ -r "$i" ]; then
-      source "$i"
-    fi
-  done
-fi
-
-echo "Starting web app"
-
 # unset variables that are not provided in app running
 unset BUILDPACK_CACHE
 unset STAGING_TIMEOUT
@@ -54,10 +43,20 @@ export TMPDIR="/home/vcap/tmp"
 export VCAP_APP_HOST="0.0.0.0"
 export VCAP_APP_PORT=$PORT
 
+# source any environment scripts
+if [ -d .profile.d ]; then
+  for i in .profile.d/*.sh; do
+    if [ -r "$i" ]; then
+      source "$i"
+    fi
+  done
+fi
+
 for env_var in "${env_vars[@]}"; do
-  echo "export $env_var"
   eval "export $env_var"
 done
+
+echo "Starting web app"
 
 # determine if web process defined in release step
 web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")

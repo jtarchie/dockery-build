@@ -42,21 +42,21 @@ describe 'When environment variables have been set on the app' do
       it 'has access to them in app staging' do
         deploy_app(buildpack: 'webbrick', app: 'html') do |output|
           expect_env(output, {
-            BUILDPACK_CACHE: '/home/vcap/tmp/cache',
             DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
             MEMORY_LIMIT: '2008m',
-            STAGING_TIMEOUT: 1000,
             VCAP_APPLICATION: '{}',
-            VCAP_SERVICES: '[]'
-          })
-
-          # only avaible in runtime
-          expect_env_not(output, {
+            VCAP_SERVICES: '[]',
             HOME: '/home/vcap/app',
             PORT: '5000',
             TMPDIR: '/home/vcap/tmp',
             VCAP_APP_HOST: '0.0.0.0',
             VCAP_APP_PORT: '5000'
+          })
+
+          # only avaible in runtime
+          expect_env_not(output, {
+            BUILDPACK_CACHE: '/home/vcap/tmp/cache',
+            STAGING_TIMEOUT: 1000
           })
         end
       end
