@@ -54,6 +54,16 @@ Each application is provided with the service of a Postgres database. The
 environment variables `DATABASE_URL` is provided to both staging and
 runtime, so they it emulates a CloudFoundry service pipline.
 
+# Testing
+
+Everything is a full integration test, so `docker` is required to be
+installed.
+
+```sh
+bundle install
+rspec
+```
+
 # Troubleshooting
 
 * Since `boot2docker` does not do port forwarding correctly on some network setups. Try setting up a SSH tunnel with `boot2docker ssh -L 5000:localhost:5000`

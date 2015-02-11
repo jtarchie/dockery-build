@@ -4,7 +4,7 @@ require 'pry'
 require 'httparty'
 require 'timeout'
 
-def deploy_app(buildpack:, app:, command: nil, env: {})
+def deploy_app(buildpack:, app:, start_command: nil, env: {})
   current_path = File.dirname(__FILE__)
   buildpack_path = File.expand_path(File.join(current_path, '..','fixtures','buildpacks',buildpack))
   app_path = File.expand_path(File.join(current_path, '..', 'fixtures','apps',app))
@@ -14,11 +14,11 @@ def deploy_app(buildpack:, app:, command: nil, env: {})
 
   execute('./bin/cleanup')
   env_args = env.map{|k,v| "-e #{k}=\"#{v}\""}.join(' ')
-  execute(%Q{./bin/deploy #{buildpack_path} #{app_path} '#{command}' #{env_args}}) do |stdin, stdout|
-      output = ''
-      stdout.each_line {|line| output += line; break if line.include?('Starting web app') }
-      yield(output)
-      stdin.puts("\x03") # send Ctrl+C down the pipe
+  execute(%Q{./bin/deploy #{buildpack_path} #{app_path} '#{start_command}' #{env_args}}) do |stdin, stdout|
+    output = ''
+    stdout.each_line {|line| output += line; break if line.include?('Starting web app') }
+    yield(output)
+    stdin.puts("\x03") # send Ctrl+C down the pipe
   end
 end
 

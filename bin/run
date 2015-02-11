@@ -3,7 +3,7 @@
 #fail fast
 set -eo pipefail
 
-start_command=${1-""}
+start_command=""
 env_vars=()
 
 while getopts ":c:e:" o; do
@@ -15,6 +15,8 @@ while getopts ":c:e:" o; do
       env_vars+=("$OPTARG");;
   esac
 done
+
+echo "START COMMAND: $start_command"
 
 export BUILDPACK_CACHE="/home/vcap/tmp/cache"
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
@@ -60,11 +62,16 @@ echo "Starting web app"
 
 # determine if web process defined in release step
 web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
+procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] rescue ''")
 
 if [ "$start_command" != "" ]; then
   eval "$start_command"
 else
-  if [ "$web_release" != "" ]; then
-    eval "$web_release"
+  if [ "$procfile_command" != "" ]; then
+    eval "$procfile_command"
+  else
+    if [ "$web_release" != "" ]; then
+      eval "$web_release"
+    fi
   fi
 fi
