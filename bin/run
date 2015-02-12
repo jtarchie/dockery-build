@@ -6,21 +6,14 @@ set -eo pipefail
 start_command=""
 env_vars=()
 
-echo "$*"
-echo "$#"
-
 while getopts ":c:e:" o; do
   case "${o}" in
     c)
-      echo "OPTARG=$OPTARG"
       start_command=${OPTARG};;
     e)
-      echo "OPTARG=$OPTARG"
       env_vars+=("$OPTARG");;
   esac
 done
-
-echo "START COMMAND: $start_command"
 
 export BUILDPACK_CACHE="/home/vcap/tmp/cache"
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
