@@ -6,9 +6,13 @@ set -eo pipefail
 start_command=""
 env_vars=()
 
+echo "$*"
+echo "$#"
+
 while getopts ":c:e:" o; do
   case "${o}" in
     c)
+      echo "OPTARG=$OPTARG"
       start_command=${OPTARG};;
     e)
       echo "OPTARG=$OPTARG"
@@ -65,7 +69,7 @@ web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_type
 procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] rescue ''")
 
 if [ "$start_command" != "" ]; then
-  eval "$start_command"
+  eval $start_command
 else
   if [ "$procfile_command" != "" ]; then
     eval "$procfile_command"

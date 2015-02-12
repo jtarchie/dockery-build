@@ -4,7 +4,7 @@ require 'pry'
 require 'httparty'
 require 'timeout'
 
-def deploy_app(buildpack:, app:, start_command: nil, env: {})
+def deploy_app(buildpack:, app:, start_command: "", env: {})
   current_path = File.dirname(__FILE__)
   buildpack_path = File.expand_path(File.join(current_path, '..','fixtures','buildpacks',buildpack))
   app_path = File.expand_path(File.join(current_path, '..', 'fixtures','apps',app))
@@ -13,8 +13,8 @@ def deploy_app(buildpack:, app:, start_command: nil, env: {})
   raise "App: #{app} does not exist" unless Dir.exists?(app_path)
 
   execute('./bin/cleanup')
-  env_args = env.map{|k,v| "-e #{k}=\"#{v}\""}.join(' ')
-  execute(%Q{./bin/deploy #{buildpack_path} #{app_path} '#{start_command}' #{env_args}}) do |stdin, stdout|
+  deploy_cmd = (['./bin/deploy', buildpack_path, app_path, start_command] + env.map{|k,v| ['-e', "#{k}='#{v}'"]}.flatten).shelljoin
+  execute(deploy_cmd) do |stdin, stdout|
     output = ''
     stdout.each_line {|line| output += line; break if line.include?('Starting web app') }
     yield(output)
