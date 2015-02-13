@@ -52,7 +52,7 @@ step of a buildpack or the provided `[start_command]` to the
 
 Each application is provided with the service of a Postgres database. The
 environment variables `DATABASE_URL` is provided to both staging and
-runtime, so they it emulates a CloudFoundry service pipline.
+runtime, so that it emulates a CloudFoundry service pipeline.
 
 # Testing
 
