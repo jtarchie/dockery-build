@@ -45,8 +45,8 @@ download the dependencies of an application.
 ## Runtime
 
 The runtime will infer the start script of based on the `release`
-step of a buildpack or the provided `[start_command]` to the
-`bin/deploy` script.
+step of a buildpack, the `Procfile` web definition, or the provided
+`[start_command]` to the `bin/deploy` script.
 
 ## Database
 
