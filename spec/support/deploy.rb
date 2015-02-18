@@ -16,7 +16,10 @@ def deploy_app(buildpack:, app:, start_command: "", env: {})
   deploy_cmd = (['./bin/deploy', buildpack_path, app_path, start_command] + env.map{|k,v| ['-e', "#{k}='#{v}'"]}.flatten).shelljoin
   execute(deploy_cmd) do |stdin, stdout|
     output = ''
-    stdout.each_line {|line| output += line; break if line.include?('Starting web app') }
+    stdout.each_line do |line|
+      output += line
+      break if line.include?('Starting web app')
+    end
     yield(output)
     stdin.puts("\x03") # send Ctrl+C down the pipe
   end

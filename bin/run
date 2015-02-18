@@ -1,74 +1,12 @@
 #!/usr/bin/env bash
 
-#fail fast
-set -eo pipefail
-
-start_command=""
-env_vars=()
-
-while getopts ":c:e:" o; do
-  case "${o}" in
-    c)
-      start_command=${OPTARG};;
-    e)
-      env_vars+=("$OPTARG");;
-  esac
-done
-
-export BUILDPACK_CACHE="/home/vcap/tmp/cache"
-export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
-export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
-export STAGING_TIMEOUT="1000"
-export VCAP_APPLICATION="{}"
-export VCAP_SERVICES="[]"
-
 cp -r /var/vcap/src /home/vcap/app
-cd /home/vcap/app
+chown -R vcap:vcap /home/vcap/app
 
-echo "Staging app with buildpack"
+mkdir -p /app
+chown vcap:vcap /app
+su - vcap -c /var/vcap/dockery/bin/tasks/staging
 
-#run buildpack
-/var/vcap/buildpack/bin/detect "$(pwd)" "$BUILDPACK_CACHE"
-/var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE"
-release=$(/var/vcap/buildpack/bin/release "$(pwd)" "$BUILDPACK_CACHE")
-
-# unset variables that are not provided in app running
-unset BUILDPACK_CACHE
-unset STAGING_TIMEOUT
-
-export HOME="/home/vcap/app"
-export PORT="5000"
-export TMPDIR="/home/vcap/tmp"
-export VCAP_APP_HOST="0.0.0.0"
-export VCAP_APP_PORT=$PORT
-
-# source any environment scripts
-if [ -d .profile.d ]; then
-  for i in .profile.d/*.sh; do
-    if [ -r "$i" ]; then
-      source "$i"
-    fi
-  done
-fi
-
-for env_var in "${env_vars[@]}"; do
-  eval "export $env_var"
-done
-
-echo "Starting web app"
-
-# determine if web process defined in release step
-web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
-procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] rescue ''")
-
-if [ "$start_command" != "" ]; then
-  eval $start_command
-else
-  if [ "$procfile_command" != "" ]; then
-    eval "$procfile_command"
-  else
-    if [ "$web_release" != "" ]; then
-      eval "$web_release"
-    fi
-  fi
-fi
+rm -Rf /app
+ln -s /home/vcap/app /app
+su - vcap -c "/var/vcap/dockery/bin/tasks/runner $(printf %q "$*")"

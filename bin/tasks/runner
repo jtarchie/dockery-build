@@ -1,0 +1,61 @@
+#!/usr/bin/env bash 
+
+#fail fast
+set -o pipefail
+cd /home/vcap/app
+
+export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
+export HOME="/home/vcap/app"
+export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
+export PORT="5000"
+export TMPDIR="/home/vcap/tmp"
+export VCAP_APPLICATION="{}"
+export VCAP_APP_HOST="0.0.0.0"
+export VCAP_APP_PORT=$PORT
+export VCAP_SERVICES="[]"
+
+start_command=""
+env_vars=()
+
+while getopts ":c:e:" o; do
+  case "${o}" in
+    c)
+      start_command=${OPTARG};;
+    e)
+      env_vars+=("$OPTARG");;
+  esac
+done
+
+# source any environment scripts
+if [ -d .profile.d ]; then
+  for i in .profile.d/*.sh; do
+    if [ -r "$i" ]; then
+      source "$i"
+    fi
+  done
+fi
+
+for env_var in "${env_vars[@]}"; do
+  eval "export $env_var"
+done
+
+
+# determine if web process defined in release step
+release=$(cat .release.log)
+web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
+procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] rescue ''")
+
+echo "Starting web app"
+
+if [ "$start_command" != "" ]; then
+  eval $start_command
+else
+  if [ "$procfile_command" != "" ]; then
+    eval "$procfile_command"
+  else
+    if [ "$web_release" != "" ]; then
+      eval "$web_release"
+    fi
+  fi
+fi
+
