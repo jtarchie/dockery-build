@@ -1,7 +1,7 @@
 #!/usr/bin/env bash 
 
 #fail fast
-set -o pipefail
+set -eo pipefail
 cd /home/vcap/app
 
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"

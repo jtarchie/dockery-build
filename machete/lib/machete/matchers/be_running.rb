@@ -1,9 +1,10 @@
-RSpec::Matchers.define :be_running do |_|
+RSpec::Matchers.define :be_running do |timeout = 60|
   include Machete::Retries
 
   match do |app|
+    duration = 0.3
     begin
-      retries(10, 0.2) do
+      retries(timeout / duration, duration) do
         raise Machete::Retries::NotFound unless app.include?('Starting web app')
         true
       end

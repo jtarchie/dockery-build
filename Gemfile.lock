@@ -2,7 +2,7 @@ PATH
   remote: ./machete
   specs:
     machete (0.0.1)
-      rrrretry
+      httparty
       rspec
       session
 
@@ -21,7 +21,6 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rrrretry (1.0.0)
     rspec (3.2.0)
       rspec-core (~> 3.2.0)
       rspec-expectations (~> 3.2.0)

@@ -3,6 +3,7 @@
 require 'fileutils'
 require 'shellwords'
 
+base_dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 buildpack_dir = ARGV[0] || ""
 app_dir = ARGV[1] || Dir.pwd
 start_command = ARGV[2] || ""
@@ -18,7 +19,7 @@ command = ['/var/vcap/dockery/bin/run']
 command += ['-c', start_command] unless start_command.empty?
 command += rest_args
 
-FileUtils.mkdir_p "#{Dir.pwd}/tmp/cache"
+FileUtils.mkdir_p "#{base_dir}/tmp/cache"
 exec(<<-SHELL)
 docker run \
 --name postgresdb-#{timestamp} \
@@ -29,8 +30,10 @@ docker run \
 --link postgresdb-#{timestamp}:postgres \
 -v #{buildpack_dir}:/var/vcap/buildpack:ro \
 -v #{app_dir}:/var/vcap/src:ro \
--v #{Dir.pwd}/:/var/vcap/dockery:ro \
--v #{Dir.pwd}/tmp/cache:/home/vcap/tmp \
+-v #{base_dir}/:/var/vcap/dockery:ro \
+-v #{base_dir}/tmp/cache:/home/vcap/tmp \
 -p 5000:5000 \
 -it dockery-build-lucid #{command.shelljoin}
+
+docker rm -f buildpack-#{timestamp} postgresdb-#{timestamp}
 SHELL

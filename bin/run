@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 cp -r /var/vcap/src /home/vcap/app
 chown -R vcap:vcap /home/vcap/app
 

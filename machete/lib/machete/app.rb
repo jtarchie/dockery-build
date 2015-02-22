@@ -26,6 +26,7 @@ module Machete
 
     def exit!
       stdin.write("\x03")
+      @thread.join
     end
   end
 end
