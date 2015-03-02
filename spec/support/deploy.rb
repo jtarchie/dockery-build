@@ -3,7 +3,7 @@ require 'httparty'
 require 'timeout'
 require 'machete'
 
-def deploy_app(buildpack:, app:, start_command: "", env: {})
+def deploy_app(buildpack:, app:, start_command: nil, env: {})
   current_path = File.dirname(__FILE__)
   buildpack_path = File.expand_path(File.join(current_path, '..','fixtures','buildpacks',buildpack))
   app_path = File.expand_path(File.join(current_path, '..', 'fixtures','apps',app))

@@ -23,7 +23,7 @@ cd dockery-build
 ./bin/init
 
 # run the buildpack script (detect, compile, and release)
-./bin/deploy <buildpack_dir> <app_dir> [start command] [-e
+./bin/deploy -b <buildpack_dir> -a <app_dir> -c [start command] [-e
 ENV_VAR=ENV_VALUE]
 
 # look at your pretty app -- the port is mapped to localhost via docker

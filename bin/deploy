@@ -1,36 +1,49 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 
-require 'fileutils'
-require 'shellwords'
+app_dir=""
+buildpack_dir=""
+port=5000
+unique_id=$(date +%s)
 
-buildpack_dir = ARGV[0] || ""
-app_dir = ARGV[1] || Dir.pwd
-start_command = ARGV[2] || ""
-rest_args = ARGV[3..-1] || []
-timestamp=Time.now.to_f.to_s.gsub('.','')
+app_args=()
 
-if buildpack_dir == ""
-  puts "usage: $0 <buildpack_dir> <app_dir>"
+while getopts ":a:b:c:e:p:u:" o; do
+  case "${o}" in
+    a)
+      app_dir=${OPTARG};;
+    b)
+      buildpack_dir=${OPTARG};;
+    c)
+      app_args+=("-c")
+      app_args+=("${OPTARG}");;
+    e)
+      app_args+=("-e")
+      app_args+=("${OPTARG}");;
+    p)
+      port=${OPTARG};;
+    u)
+      unique_id=${OPTARG};;
+  esac
+done
+
+
+if [ "$buildpack_dir" == "" ]; then
+  echo "usage: $0 -b <buildpack_dir> -a <app_dir> [-c start_command] [-p 5000] [-e NAME=VALUE] [-u unique_id]"
   exit 1
-end
+fi
 
-command = ['/var/vcap/dockery/bin/run']
-command += ['-c', start_command] unless start_command.empty?
-command += rest_args
+mkdir -p "$(pwd)/tmp/cache"
 
-FileUtils.mkdir_p "#{Dir.pwd}/tmp/cache"
-exec(<<-SHELL)
 docker run \
---name postgresdb-#{timestamp} \
+--name "postgresdb-$unique_id" \
 -d postgres
 
 docker run \
---name buildpack-#{timestamp} \
---link postgresdb-#{timestamp}:postgres \
--v #{buildpack_dir}:/var/vcap/buildpack:ro \
--v #{app_dir}:/var/vcap/src:ro \
--v #{Dir.pwd}/:/var/vcap/dockery:ro \
--v #{Dir.pwd}/tmp/cache:/home/vcap/tmp \
--p 5000:5000 \
--it dockery-build-lucid #{command.shelljoin}
-SHELL
+--name "buildpack-$unique_id" \
+--link "postgresdb-$unique_id:postgres" \
+-v "$buildpack_dir:/var/vcap/buildpack:ro" \
+-v "$app_dir:/var/vcap/src:ro" \
+-v "$(pwd)/:/var/vcap/dockery:ro" \
+-v "$(pwd)/tmp/cache:/home/vcap/tmp" \
+-p "$port:3000" \
+-it dockery-build-lucid /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")
