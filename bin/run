@@ -7,6 +7,11 @@ mkdir -p /app
 chown vcap:vcap /app
 su - vcap -c /var/vcap/dockery/bin/tasks/staging
 
+echo "ARGS: $#"
+echo "ARGS: $*"
+
 rm -Rf /app
 ln -s /home/vcap/app /app
-su - vcap -c "/var/vcap/dockery/bin/tasks/runner $(printf %q "$*")"
+sudo -u vcap sh -s << EOF
+  /var/vcap/dockery/bin/tasks/runner $*
+EOF

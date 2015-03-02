@@ -39,12 +39,12 @@ describe 'When environment variables have been set on the app' do
         DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
         HOME: '/home/vcap/app',
         MEMORY_LIMIT: '2008m',
-        PORT: '5000',
+        PORT: '4000',
         TMPDIR: '/home/vcap/tmp',
         VCAP_APPLICATION: '{}',
         VCAP_SERVICES: '[]',
         VCAP_APP_HOST: '0.0.0.0',
-        VCAP_APP_PORT: '5000'
+        VCAP_APP_PORT: '4000'
       })
 
       # only available in staging
@@ -64,10 +64,10 @@ describe 'When environment variables have been set on the app' do
           VCAP_APPLICATION: '{}',
           VCAP_SERVICES: '[]',
           HOME: '/home/vcap/app',
-          PORT: '5000',
+          PORT: '4000',
           TMPDIR: '/home/vcap/tmp',
           VCAP_APP_HOST: '0.0.0.0',
-          VCAP_APP_PORT: '5000'
+          VCAP_APP_PORT: '4000'
         })
 
         # only avaible in runtime

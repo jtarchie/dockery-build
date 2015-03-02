@@ -1,4 +1,4 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 
 #fail fast
 set -o pipefail
@@ -7,7 +7,7 @@ cd /home/vcap/app
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
 export HOME="/home/vcap/app"
 export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
-export PORT="5000"
+export PORT="3000"
 export TMPDIR="/home/vcap/tmp"
 export VCAP_APPLICATION="{}"
 export VCAP_APP_HOST="0.0.0.0"
@@ -16,6 +16,8 @@ export VCAP_SERVICES="[]"
 
 start_command=""
 env_vars=()
+echo "ARGS: $#"
+echo "ARGS: $*"
 
 while getopts ":c:e:" o; do
   case "${o}" in
@@ -38,7 +40,6 @@ fi
 for env_var in "${env_vars[@]}"; do
   eval "export $env_var"
 done
-
 
 # determine if web process defined in release step
 release=$(cat .release.log)
