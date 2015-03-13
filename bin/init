@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
 docker pull postgres
-docker build -t dockery-build-lucid dockerfiles/lucid
+docker build -t dockery-build-lucid64 dockerfiles/lucid64
+docker build -t dockery-build-cflinuxfs2 dockerfiles/cflinuxfs2

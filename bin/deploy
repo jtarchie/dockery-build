@@ -3,11 +3,12 @@
 app_dir=""
 buildpack_dir=""
 port=5000
+stack="lucid64"
 unique_id=$(date +%s)
 
 app_args=()
 
-while getopts ":a:b:c:e:p:u:" o; do
+while getopts ":a:b:c:e:p:s:u:" o; do
   case "${o}" in
     a)
       app_dir=${OPTARG};;
@@ -21,6 +22,8 @@ while getopts ":a:b:c:e:p:u:" o; do
       app_args+=("${OPTARG}");;
     p)
       port=${OPTARG};;
+    s)
+      stack=${OPTARG};;
     u)
       unique_id=${OPTARG};;
   esac
@@ -28,7 +31,7 @@ done
 
 
 if [ "$buildpack_dir" == "" ]; then
-  echo "usage: $0 -b <buildpack_dir> -a <app_dir> [-c start_command] [-p 5000] [-e NAME=VALUE] [-u unique_id]"
+  echo "usage: $0 -b <buildpack_dir> -a <app_dir> [-c start_command] [-p 5000] [-e NAME=VALUE] [-u unique_id] [-s lucid64|cflinuxfs2]"
   exit 1
 fi
 
@@ -46,4 +49,4 @@ docker run \
 -v "$(pwd)/:/var/vcap/dockery:ro" \
 -v "$(pwd)/tmp/cache:/home/vcap/tmp" \
 -p "$port:3000" \
--it dockery-build-lucid /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")
+-it dockery-build-"$stack" /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")

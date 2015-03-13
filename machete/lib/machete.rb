@@ -14,10 +14,11 @@ module Machete
     return *PTY.spawn(command)
   end
 
-  def self.deploy_app(app_name, app_path:, buildpack_path:, env: {}, start_command:)
+  def self.deploy_app(app_name, app_path:, buildpack_path:, env: {}, start_command: nil, stack: nil)
     cmds = ["#{ROOT_PATH}/bin/deploy"]
     cmds += ['-b', buildpack_path] if buildpack_path
     cmds += ['-a', app_path] if app_path
+    cmds += ['-s', stack] if stack
     cmds += ['-c', start_command] if start_command
     cmds += env.map{|k,v| ['-e', "#{k}='#{v}'"]}.flatten
 
