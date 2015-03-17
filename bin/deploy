@@ -49,4 +49,5 @@ docker run \
 -v "$(pwd)/:/var/vcap/dockery:ro" \
 -v "$(pwd)/tmp/cache:/home/vcap/tmp" \
 -p "$port:3000" \
+-e "CF_STACK=$stack" \
 -it dockery-build-"$stack" /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")

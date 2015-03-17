@@ -5,7 +5,10 @@ chown -R vcap:vcap /home/vcap/app
 
 mkdir -p /app
 chown vcap:vcap /app
-su - vcap -c /var/vcap/dockery/bin/tasks/staging
+sudo -u vcap sh -s << EOF
+  export CF_STACK=$CF_STACK
+  /var/vcap/dockery/bin/tasks/staging
+EOF
 
 rm -Rf /app
 ln -s /home/vcap/app /app

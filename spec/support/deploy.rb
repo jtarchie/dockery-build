@@ -23,3 +23,27 @@ def deploy_app(buildpack:, app:, start_command: nil, env: {}, stack: 'lucid64')
 
   app
 end
+
+def expect_browser_env(env)
+  env.each do |key, value|
+    expect(browser).to have_body %Q{#{key}="#{value}"}
+  end
+end
+
+def expect_browser_env_not(env)
+  env.each do |key, value|
+    expect(browser).to_not have_body %Q{#{key}="#{value}"}
+  end
+end
+
+def expect_log_env(env, pre)
+  env.each do |key, value|
+    expect(app).to have_logged %Q{#{pre}_#{key}=#{value}}
+  end
+end
+
+def expect_log_env_not(env, pre)
+  env.each do |key, value|
+    expect(app).to_not have_logged %Q{#{pre}_#{key}=#{value}}
+  end
+end

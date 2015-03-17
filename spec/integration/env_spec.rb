@@ -5,30 +5,6 @@ describe 'When environment variables have been set on the app' do
 
   after { Machete::CF::DeleteApp.new.execute(app) }
 
-  def expect_browser_env(env)
-    env.each do |key, value|
-      expect(browser).to have_body %Q{#{key}="#{value}"}
-    end
-  end
-
-  def expect_browser_env_not(env)
-    env.each do |key, value|
-      expect(browser).to_not have_body %Q{#{key}="#{value}"}
-    end
-  end
-
-  def expect_log_env(env)
-    env.each do |key, value|
-      expect(app).to have_logged %Q{#{key}="#{value}"}
-    end
-  end
-
-  def expect_log_env_not(env)
-    env.each do |key, value|
-      expect(app).to_not have_logged %Q{#{key}="#{value}"}
-    end
-  end
-
   context 'And there system provided variables' do
     let(:app) { deploy_app(app: 'html', buildpack: 'webbrick') }
 
@@ -47,11 +23,35 @@ describe 'When environment variables have been set on the app' do
         VCAP_APP_PORT: '3000'
       })
 
-      # only available in staging
       expect_browser_env_not({
         BUILDPACK_CACHE: '/home/vcap/tmp/cache',
+        CF_STACK: 'lucid64',
         STAGING_TIMEOUT: 1000
       })
+    end
+
+    context 'during the compile step' do
+      let(:app) { deploy_app(app: 'html', buildpack: 'webbrick') }
+
+      it 'has access to them in app staging' do
+        expect_log_env({
+          CF_STACK: 'lucid64',
+          BUILDPACK_CACHE: '/home/vcap/tmp/cache',
+          STAGING_TIMEOUT: 1000,
+          DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
+          MEMORY_LIMIT: '2008m',
+          VCAP_APPLICATION: '{}',
+          VCAP_SERVICES: '[]'
+        }, 'compile')
+
+        expect_log_env_not({
+          HOME: '/home/vcap/app',
+          PORT: '3000',
+          TMPDIR: '/home/vcap/tmp',
+          VCAP_APP_HOST: '0.0.0.0',
+          VCAP_APP_PORT: '3000'
+        }, 'compile')
+      end
     end
 
     context 'during the `profile.d` runtime' do
@@ -68,13 +68,13 @@ describe 'When environment variables have been set on the app' do
           TMPDIR: '/home/vcap/tmp',
           VCAP_APP_HOST: '0.0.0.0',
           VCAP_APP_PORT: '3000'
-        })
+        }, 'profile')
 
-        # only avaible in runtime
         expect_log_env_not({
+          CF_STACK: 'lucid64',
           BUILDPACK_CACHE: '/home/vcap/tmp/cache',
           STAGING_TIMEOUT: 1000
-        })
+        }, 'profile')
       end
     end
   end
@@ -96,7 +96,7 @@ describe 'When environment variables have been set on the app' do
       it 'does not have access to them' do
         expect_log_env_not({
           NAME: 'Sideshow Bob'
-        })
+        }, 'profile')
       end
     end
   end
