@@ -1,6 +1,7 @@
 require 'machete/retries'
 require 'machete/app'
 require 'machete/browser'
+require 'machete/logger'
 require 'machete/matchers'
 require 'machete/version'
 require 'pty'
@@ -14,7 +15,20 @@ module Machete
     return *PTY.spawn(command)
   end
 
-  def self.deploy_app(app_name, app_path:, buildpack_path:, env: {}, start_command: nil, stack: nil)
+  def self.deploy_app(app_name, app_path: nil, buildpack_path: nil, env: {}, start_command: nil, stack: nil)
+    app_path ||= File.join(Dir.pwd, 'cf_spec', 'fixtures', app_name)
+    buildpack_path ||= Dir.pwd
+
+    Bundler.with_clean_env do
+      Dir.chdir(app_path) do
+        `./package.sh` if File.exist?('package.sh')
+      end
+    end
+
+    Dir.chdir(File.join(File.dirname(__FILE__), '..', '..')) do
+      `./bin/cleanup`
+    end
+
     cmds = ["#{ROOT_PATH}/bin/deploy"]
     cmds += ['-b', buildpack_path] if buildpack_path
     cmds += ['-a', app_path] if app_path
@@ -28,6 +42,16 @@ module Machete
     app = App.new(stdin, stdout)
 
     app
+  end
+
+  module BuildpackMode
+    def self.offline?
+      false
+    end
+
+    def self.online?
+      true
+    end
   end
 
   module CF

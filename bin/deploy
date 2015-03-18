@@ -6,6 +6,7 @@ port=5000
 stack="lucid64"
 unique_id=$(date +%s)
 
+base_dir=$( cd "$(dirname $(dirname $0) )"; pwd )
 app_args=()
 
 while getopts ":a:b:c:e:p:s:u:" o; do
@@ -35,7 +36,7 @@ if [ "$buildpack_dir" == "" ]; then
   exit 1
 fi
 
-mkdir -p "$(pwd)/tmp/cache"
+mkdir -p "$base_dir/tmp/cache"
 
 docker run \
 --name "postgresdb-$unique_id" \
@@ -46,8 +47,8 @@ docker run \
 --link "postgresdb-$unique_id:postgres" \
 -v "$buildpack_dir:/var/vcap/buildpack:ro" \
 -v "$app_dir:/var/vcap/src:ro" \
--v "$(pwd)/:/var/vcap/dockery:ro" \
--v "$(pwd)/tmp/cache:/home/vcap/tmp" \
+-v "$base_dir/:/var/vcap/dockery:ro" \
+-v "$base_dir/tmp/cache:/home/vcap/tmp" \
 -p "$port:3000" \
 -e "CF_STACK=$stack" \
 -it dockery-build-"$stack" /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")

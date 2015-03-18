@@ -5,7 +5,7 @@ module Machete
     include Retries
 
     def visit_path(path)
-      @response = retries(10, 0.2) { HTTParty.get("http://localhost:5000#{path}") }
+      @response = retries(20, 0.3) { HTTParty.get("http://localhost:5000#{path}") }
     end
 
     def body
