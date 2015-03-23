@@ -80,23 +80,35 @@ describe 'When environment variables have been set on the app' do
   end
 
   context 'And there are user provided variables' do
-    let(:app) { deploy_app(buildpack: 'webbrick', app: 'html', env: {NAME: 'Sideshow Bob'}) }
+    context 'during app runtime' do
+      let(:app) { deploy_app(buildpack: 'webbrick', app: 'html', env: {NAME: 'Runtime'}) }
 
-    it 'has access to them at app runtime' do
-      browser.visit_path '/env.rhtml'
+      it 'has access to them at app runtime' do
+        browser.visit_path '/env.rhtml'
 
-      expect_browser_env({
-        NAME: 'Sideshow Bob'
-      })
+        expect_browser_env({
+          NAME: 'Runtime'
+        })
+      end
     end
 
     context 'during the `profile.d` runtime' do
-      let(:app) { deploy_app(buildpack: 'webbrick', app: 'html', env: {NAME: 'Sideshow Bob'}) }
+      let(:app) { deploy_app(buildpack: 'webbrick', app: 'html', env: {NAME: 'Profile'}) }
 
-      it 'does not have access to them' do
-        expect_log_env_not({
-          NAME: 'Sideshow Bob'
+      it 'does has access to them' do
+        expect_log_env({
+          NAME: 'Profile'
         }, 'profile')
+      end
+    end
+
+    context 'during staging' do
+      let(:app) { deploy_app(buildpack: 'webbrick', app: 'html', env: {NAME: 'Staging'}) }
+
+      it 'does has access to them' do
+        expect_log_env({
+          NAME: 'Staging'
+        }, 'compile')
       end
     end
   end

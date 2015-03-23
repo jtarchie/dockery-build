@@ -12,6 +12,19 @@ export STAGING_TIMEOUT="1000"
 export VCAP_APPLICATION="{}"
 export VCAP_SERVICES="[]"
 
+env_vars=()
+
+while getopts ":e:" o; do
+  case "${o}" in
+    e)
+      env_vars+=("$OPTARG");;
+  esac
+done
+
+for env_var in "${env_vars[@]}"; do
+  eval "export $env_var"
+done
+
 #run buildpack
 /var/vcap/buildpack/bin/detect "$(pwd)" "$BUILDPACK_CACHE"
 /var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE"

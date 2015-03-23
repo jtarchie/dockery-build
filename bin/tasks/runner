@@ -26,6 +26,10 @@ while getopts ":c:e:" o; do
   esac
 done
 
+for env_var in "${env_vars[@]}"; do
+  eval "export $env_var"
+done
+
 # source any environment scripts
 if [ -d .profile.d ]; then
   for i in .profile.d/*.sh; do
@@ -34,10 +38,6 @@ if [ -d .profile.d ]; then
     fi
   done
 fi
-
-for env_var in "${env_vars[@]}"; do
-  eval "export $env_var"
-done
 
 # determine if web process defined in release step
 release=$(cat .release.log)
