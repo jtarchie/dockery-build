@@ -24,7 +24,6 @@ describe 'When environment variables have been set on the app' do
       })
 
       expect_browser_env_not({
-        BUILDPACK_CACHE: '/home/vcap/tmp/cache',
         CF_STACK: 'lucid64',
         STAGING_TIMEOUT: 1000
       })
@@ -36,7 +35,6 @@ describe 'When environment variables have been set on the app' do
       it 'has access to them in app staging' do
         expect_log_env({
           CF_STACK: 'lucid64',
-          BUILDPACK_CACHE: '/home/vcap/tmp/cache',
           STAGING_TIMEOUT: 1000,
           DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
           MEMORY_LIMIT: '2008m',
@@ -72,7 +70,6 @@ describe 'When environment variables have been set on the app' do
 
         expect_log_env_not({
           CF_STACK: 'lucid64',
-          BUILDPACK_CACHE: '/home/vcap/tmp/cache',
           STAGING_TIMEOUT: 1000
         }, 'profile')
       end

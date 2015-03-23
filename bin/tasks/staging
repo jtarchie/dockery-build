@@ -5,7 +5,7 @@ set -eo pipefail
 echo "Staging app with buildpack"
 cd /home/vcap/app
 
-export BUILDPACK_CACHE="/home/vcap/tmp/cache"
+cache="/home/vcap/tmp/cache"
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
 export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
 export STAGING_TIMEOUT="1000"
@@ -26,6 +26,6 @@ for env_var in "${env_vars[@]}"; do
 done
 
 #run buildpack
-/var/vcap/buildpack/bin/detect "$(pwd)" "$BUILDPACK_CACHE"
-/var/vcap/buildpack/bin/compile "$(pwd)" "$BUILDPACK_CACHE"
-/var/vcap/buildpack/bin/release "$(pwd)" "$BUILDPACK_CACHE" > .release.log
+/var/vcap/buildpack/bin/detect "$(pwd)" cache
+/var/vcap/buildpack/bin/compile "$(pwd)" cache
+/var/vcap/buildpack/bin/release "$(pwd)" cache > .release.log
