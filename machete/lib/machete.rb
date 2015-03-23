@@ -1,19 +1,13 @@
 require 'machete/retries'
 require 'machete/app'
 require 'machete/browser'
+require 'machete/command'
 require 'machete/logger'
 require 'machete/matchers'
 require 'machete/version'
-require 'pty'
-require 'shellwords'
 
 module Machete
   ROOT_PATH = File.join(File.dirname(__FILE__), '..', '..')
-
-
-  def self.execute(command)
-    return *PTY.spawn(command)
-  end
 
   def self.deploy_app(app_name, app_path: nil, buildpack_path: nil, env: {}, start_command: nil, stack: nil)
     app_path ||= File.join(Dir.pwd, 'cf_spec', 'fixtures', app_name)
@@ -25,7 +19,7 @@ module Machete
       end
     end
 
-    Dir.chdir(File.join(File.dirname(__FILE__), '..', '..')) do
+    Dir.chdir(ROOT_PATH) do
       `./bin/cleanup`
     end
 
@@ -34,14 +28,15 @@ module Machete
     cmds += ['-a', app_path] if app_path
     cmds += ['-s', stack] if stack
     cmds += ['-c', start_command] if start_command
+    cmds += ['-u', app_name]
     cmds += env.map{|k,v| ['-e', "#{k}='#{v}'"]}.flatten
 
     deploy_cmd = cmds.shelljoin
-    stdout, stdin, _ = execute(deploy_cmd)
 
-    app = App.new(stdin, stdout)
-
-    app
+    App.new(
+      name: app_name,
+      command: Command.new(deploy_cmd)
+    )
   end
 
   module BuildpackMode

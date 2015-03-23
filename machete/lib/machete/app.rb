@@ -1,31 +1,21 @@
+require 'ostruct'
+
 module Machete
-  App = Struct.new(:stdin, :stdout) do
-    include Retries
-
-    def initialize(*)
-      super
-      @output = ''
-      @thread = Thread.new do
-        while buffer = stdout.read(1)
-          @output += buffer
-        end
-      end
-    end
-
+  class App < OpenStruct
     def started?
       include?('Starting web app')
     end
 
     def include?(msg)
-      @output.include?(msg)
+      command.output.include?(msg)
     end
 
     def contents
-      @output.dup
+      command.output.dup
     end
 
     def exit!
-      stdin.write("\x03")
+      command.close!
     end
   end
 end

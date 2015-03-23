@@ -3,7 +3,7 @@ RSpec::Matchers.define :have_logged do |expected_entry|
 
   match do |app|
     begin
-      retries(100, 0.5) do
+      retries(10, 0.3) do
         raise Machete::Retries::NotFound unless app.include?(expected_entry)
         true
       end

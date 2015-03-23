@@ -36,7 +36,8 @@ if [ "$buildpack_dir" == "" ]; then
   exit 1
 fi
 
-mkdir -p "$base_dir/tmp/cache"
+mkdir -p "$base_dir/tmp/$unique_id/tmp"
+mkdir -p "$base_dir/tmp/$unique_id/app"
 
 docker run \
 --name "postgresdb-$unique_id" \
@@ -48,7 +49,8 @@ docker run \
 -v "$buildpack_dir:/var/vcap/buildpack:ro" \
 -v "$app_dir:/var/vcap/src:ro" \
 -v "$base_dir/:/var/vcap/dockery:ro" \
--v "$base_dir/tmp/cache:/home/vcap/tmp" \
+-v "$base_dir/tmp/$unique_id/tmp:/home/vcap/tmp" \
+-v "$base_dir/tmp/$unique_id/app:/home/vcap/app" \
 -p "$port:3000" \
 -e "CF_STACK=$stack" \
 -it dockery-build-"$stack" /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")

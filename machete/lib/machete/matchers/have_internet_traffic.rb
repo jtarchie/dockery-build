@@ -1,4 +1,4 @@
-RSpec::Matchers.define :have_internet_traffic do | |
+RSpec::Matchers.define :have_internet_traffic do
   match do |host|
   end
 

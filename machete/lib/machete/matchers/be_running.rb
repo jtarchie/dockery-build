@@ -3,7 +3,7 @@ RSpec::Matchers.define :be_running do |_|
 
   match do |app|
     begin
-      retries(1000, 0.3) do
+      retries(10, 0.3) do
         raise Machete::Retries::NotFound unless app.include?('Starting web app')
         true
       end
