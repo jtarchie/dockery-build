@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
+umask 077
+
 #fail fast
-set -o pipefail
+set -eo pipefail
 cd /home/vcap/app
 
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
 export HOME="/home/vcap/app"
 export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
 export PORT="3000"
-export TMPDIR="/home/vcap/tmp"
 export VCAP_APPLICATION="{}"
 export VCAP_APP_HOST="0.0.0.0"
 export VCAP_APP_PORT=$PORT
@@ -24,6 +25,7 @@ while getopts ":c:e:" o; do
     e)
       env_vars+=("$OPTARG");;
   esac
+  shift
 done
 
 for env_var in "${env_vars[@]}"; do
@@ -44,17 +46,42 @@ release=$(cat .release.log)
 web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
 procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] rescue ''")
 
-echo "Starting web app"
+echo -n "Starting web app with -- "
 
-if [ "$start_command" != "" ]; then
-  eval $start_command
-else
-  if [ "$procfile_command" != "" ]; then
-    eval "$procfile_command"
+trap 'echo "0 of 1 instances running, 1 down"' ERR INT
+
+run_app() {
+  if [ "$start_command" != "" ]; then
+    echo $start_command
+    eval $start_command
   else
-    if [ "$web_release" != "" ]; then
-      eval "$web_release"
+    if [ "$procfile_command" != "" ]; then
+      echo $procfile_command
+      eval "$procfile_command"
+    else
+      if [ "$web_release" != "" ]; then
+        echo $web_release
+        eval "$web_release"
+      fi
     fi
   fi
-fi
+}
 
+ping_app() {
+  set +e
+  counter=0
+  until nc -z -w 5 localhost $PORT; do
+    if [[ "$counter" -gt 10 ]]; then
+      exit 1
+    fi
+    sleep 1
+    let counter++
+  done
+  set -e
+
+  echo "1 of 1 instances running, 1 started"
+}
+
+run_app &
+ping_app &
+wait

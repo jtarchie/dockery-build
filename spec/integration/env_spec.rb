@@ -14,9 +14,7 @@ describe 'When environment variables have been set on the app' do
       expect_browser_env({
         DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
         HOME: '/home/vcap/app',
-        MEMORY_LIMIT: '2008m',
         PORT: '3000',
-        TMPDIR: '/home/vcap/tmp',
         VCAP_APPLICATION: '{}',
         VCAP_SERVICES: '[]',
         VCAP_APP_HOST: '0.0.0.0',
@@ -37,7 +35,6 @@ describe 'When environment variables have been set on the app' do
           CF_STACK: 'lucid64',
           STAGING_TIMEOUT: 1000,
           DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
-          MEMORY_LIMIT: '2008m',
           VCAP_APPLICATION: '{}',
           VCAP_SERVICES: '[]'
         }, 'compile')
@@ -45,7 +42,6 @@ describe 'When environment variables have been set on the app' do
         expect_log_env_not({
           HOME: '/home/vcap/app',
           PORT: '3000',
-          TMPDIR: '/home/vcap/tmp',
           VCAP_APP_HOST: '0.0.0.0',
           VCAP_APP_PORT: '3000'
         }, 'compile')
@@ -58,12 +54,10 @@ describe 'When environment variables have been set on the app' do
       it 'has access to them in app staging' do
         expect_log_env({
           DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/postgres',
-          MEMORY_LIMIT: '2008m',
           VCAP_APPLICATION: '{}',
           VCAP_SERVICES: '[]',
           HOME: '/home/vcap/app',
           PORT: '3000',
-          TMPDIR: '/home/vcap/tmp',
           VCAP_APP_HOST: '0.0.0.0',
           VCAP_APP_PORT: '3000'
         }, 'profile')

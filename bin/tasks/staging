@@ -5,7 +5,9 @@ set -eo pipefail
 echo "Staging app with buildpack"
 cd /home/vcap/app
 
-cache="/home/vcap/tmp/cache"
+mkdir -p /tmp/cache
+cache="/tmp/cache"
+
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
 export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
 export STAGING_TIMEOUT="1000"
@@ -19,13 +21,19 @@ while getopts ":e:" o; do
     e)
       env_vars+=("$OPTARG");;
   esac
+  shift
 done
+
+export CF_STACK=$(cat /etc/.cf_stack)
 
 for env_var in "${env_vars[@]}"; do
   eval "export $env_var"
 done
 
 #run buildpack
-/var/vcap/buildpack/bin/detect "$(pwd)" cache
-/var/vcap/buildpack/bin/compile "$(pwd)" cache
-/var/vcap/buildpack/bin/release "$(pwd)" cache > .release.log
+echo "-> Running buildpack detect"
+/var/vcap/buildpack/bin/detect "$(pwd)" $cache
+echo "-> Running buildpack compile"
+/var/vcap/buildpack/bin/compile "$(pwd)" $cache
+echo "-> Running buildpack release"
+/var/vcap/buildpack/bin/release "$(pwd)" $cache > .release.log

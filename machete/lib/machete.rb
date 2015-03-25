@@ -9,7 +9,7 @@ require 'machete/version'
 module Machete
   ROOT_PATH = File.join(File.dirname(__FILE__), '..', '..')
 
-  def self.deploy_app(app_name, app_path: nil, buildpack_path: nil, env: {}, start_command: nil, stack: nil)
+  def self.deploy_app(app_name, with_pg: true, app_path: nil, buildpack_path: ENV['BUILDPACK_PATH'], env: {}, start_command: nil, stack: ENV['CF_STACK'])
     app_path ||= File.join(Dir.pwd, 'cf_spec', 'fixtures', app_name)
     buildpack_path ||= Dir.pwd
 
@@ -28,7 +28,7 @@ module Machete
     cmds += ['-a', app_path] if app_path
     cmds += ['-s', stack] if stack
     cmds += ['-c', start_command] if start_command
-    cmds += ['-u', app_name]
+    cmds += ['-u', app_name.gsub(/[^a-zA-Z0-9_.-]/, '')]
     cmds += env.map{|k,v| ['-e', "#{k}='#{v}'"]}.flatten
 
     deploy_cmd = cmds.shelljoin
@@ -41,11 +41,11 @@ module Machete
 
   module BuildpackMode
     def self.offline?
-      false
+      !online?
     end
 
     def self.online?
-      true
+      ENV['BUILDPACK_MODE'] == 'online'
     end
   end
 

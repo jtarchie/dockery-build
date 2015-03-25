@@ -1,15 +1,19 @@
-require 'httparty'
+require 'open-uri'
 
 module Machete
   Browser = Struct.new(:app) do
     include Retries
 
     def visit_path(path)
-      @response = retries(20, 0.3) { HTTParty.get("http://localhost:5000#{path}") }
+      wait_until(timeout: 10) { @response = open("http://localhost:5000#{path}") }
+    rescue
+      warn "---- Log from app ----"
+      warn app.contents
+      raise
     end
 
     def body
-      @response.body
+      @body ||= @response.read
     end
   end
 end

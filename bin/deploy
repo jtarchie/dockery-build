@@ -7,7 +7,6 @@ stack="lucid64"
 unique_id=$(date +%s)
 
 base_dir=$( cd "$(dirname $(dirname $0) )"; pwd )
-app_args=()
 
 while getopts ":a:b:c:e:p:s:u:" o; do
   case "${o}" in
@@ -15,12 +14,6 @@ while getopts ":a:b:c:e:p:s:u:" o; do
       app_dir=${OPTARG};;
     b)
       buildpack_dir=${OPTARG};;
-    c)
-      app_args+=("-c")
-      app_args+=("${OPTARG}");;
-    e)
-      app_args+=("-e")
-      app_args+=("${OPTARG}");;
     p)
       port=${OPTARG};;
     s)
@@ -30,14 +23,20 @@ while getopts ":a:b:c:e:p:s:u:" o; do
   esac
 done
 
-
 if [ "$buildpack_dir" == "" ]; then
   echo "usage: $0 -b <buildpack_dir> -a <app_dir> [-c start_command] [-p 5000] [-e NAME=VALUE] [-u unique_id] [-s lucid64|cflinuxfs2]"
   exit 1
 fi
 
-mkdir -p "$base_dir/tmp/$unique_id/tmp"
 mkdir -p "$base_dir/tmp/$unique_id/app"
+mkdir -p "$base_dir/tmp/$unique_id/buildpack"
+chmod -R 1777 $base_dir/tmp
+
+if [[ $buildpack_dir =~ \.zip$ ]]; then
+  buildpack_zip=$buildpack_dir
+  buildpack_dir="$base_dir/tmp/$unique_id/buildpack"
+  unzip -qq $buildpack_zip -d $buildpack_dir
+fi
 
 docker run \
 --name "postgresdb-$unique_id" \
@@ -49,8 +48,6 @@ docker run \
 -v "$buildpack_dir:/var/vcap/buildpack:ro" \
 -v "$app_dir:/var/vcap/src:ro" \
 -v "$base_dir/:/var/vcap/dockery:ro" \
--v "$base_dir/tmp/$unique_id/tmp:/home/vcap/tmp" \
 -v "$base_dir/tmp/$unique_id/app:/home/vcap/app" \
 -p "$port:3000" \
--e "CF_STACK=$stack" \
--it dockery-build-"$stack" /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")
+-it dockery-build-"$stack" /var/vcap/dockery/bin/run "$@"

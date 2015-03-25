@@ -18,4 +18,25 @@ describe 'With RSpec matchers' do
       end
     end
   end
+
+  describe '#have_internet_traffic' do
+
+    after { Machete::CF::DeleteApp.new.execute(app) }
+
+    context 'when the buildpack does not access the internet' do
+      let(:app) { deploy_app(app: 'html', buildpack: 'webbrick') }
+
+      it 'does not match' do
+        expect(app.host).to_not have_internet_traffic
+      end
+    end
+
+    context 'when the buildpack accesses the internet' do
+      let(:app) { deploy_app(app: 'html', buildpack: 'webbrick', env: {URL: 'http://google.com'}) }
+
+      it 'matches' do
+        expect(app.host).to have_internet_traffic
+      end
+    end
+  end
 end
