@@ -2,14 +2,7 @@ RSpec::Matchers.define :be_running do |_|
   include Machete::Retries
 
   match do |app|
-    begin
-      retries(10, 0.3) do
-        raise Machete::Retries::NotFound unless app.include?('Starting web app')
-        true
-      end
-    rescue Machete::Retries::NotFound
-      false
-    end
+    wait_until(timeout: 60) { app.include?('Starting web app') }
   end
 
   failure_message do |app|

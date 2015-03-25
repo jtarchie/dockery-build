@@ -2,16 +2,18 @@ module Machete
   module Retries
     class NotFound < RuntimeError; end
 
-    def retries(retries=10, duration=1, &block)
-      begin
-        block.call
-      rescue
-        if retries > 0
-          sleep(duration)
-          retries -= 1
-          retry
-        else
-          raise
+    def wait_until(timeout: 1, pause: 0.1, &block)
+      start_time = Time.now
+      expired = -> { Time.now - start_time > timeout }
+
+      loop do
+        begin
+          return false if expired.call
+          block.call.tap { |val| return val if val }
+
+          sleep(pause)
+        rescue
+          raise if expired.call
         end
       end
     end

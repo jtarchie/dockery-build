@@ -28,7 +28,7 @@ module Machete
     cmds += ['-a', app_path] if app_path
     cmds += ['-s', stack] if stack
     cmds += ['-c', start_command] if start_command
-    cmds += ['-u', app_name]
+    cmds += ['-u', app_name.gsub(/[^a-zA-Z0-9_.-]/, '')]
     cmds += env.map{|k,v| ['-e', "#{k}='#{v}'"]}.flatten
 
     deploy_cmd = cmds.shelljoin

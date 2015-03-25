@@ -2,14 +2,7 @@ RSpec::Matchers.define :have_logged do |expected_entry|
   include Machete::Retries
 
   match do |app|
-    begin
-      retries(10, 0.3) do
-        raise Machete::Retries::NotFound unless app.include?(expected_entry)
-        true
-      end
-    rescue Machete::Retries::NotFound
-      false
-    end
+    wait_until(timeout: 3) { app.include?(expected_entry) }
   end
 
   failure_message do |app|

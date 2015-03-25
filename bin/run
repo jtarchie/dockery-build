@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
 cp -a /var/vcap/src/. /home/vcap/app/
-chown -R vcap:vcap /home/vcap/app
+chown -hR vcap:vcap /home/vcap/app
 
 mkdir -p /app
-chown vcap:vcap /app
-sudo -u vcap bash -i -c "export CF_STACK=$CF_STACK; /var/vcap/dockery/bin/tasks/staging $*"
+touch /app/empty_buildpack_file
+chown -R vcap:vcap /app
+sudo tcpdump -n -i eth0 not dst port 53 and ip -c 1 -t | sed -e 's/^/internet traffic: /' 2>&1 &
+sudo -H -u vcap bash -i -c "export CF_STACK=$CF_STACK; /var/vcap/dockery/bin/tasks/staging $*"
 
 rm -Rf /app
 ln -s /home/vcap/app /app
+chown -hR vcap:vcap /home/vcap/app
 sudo -u vcap bash -i -c "/var/vcap/dockery/bin/tasks/runner $*"

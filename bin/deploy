@@ -30,7 +30,6 @@ while getopts ":a:b:c:e:p:s:u:" o; do
   esac
 done
 
-
 if [ "$buildpack_dir" == "" ]; then
   echo "usage: $0 -b <buildpack_dir> -a <app_dir> [-c start_command] [-p 5000] [-e NAME=VALUE] [-u unique_id] [-s lucid64|cflinuxfs2]"
   exit 1

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+umask 077
+
 #fail fast
 set -o pipefail
 cd /home/vcap/app
@@ -44,15 +46,18 @@ release=$(cat .release.log)
 web_release=$(ruby -ryaml -e "puts YAML.load(\"$release\")['default_process_types']['web'] rescue ''")
 procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] rescue ''")
 
-echo "Starting web app"
+echo -n "Starting web app with -- "
 
 if [ "$start_command" != "" ]; then
+  echo $start_command
   eval $start_command
 else
   if [ "$procfile_command" != "" ]; then
+    echo $procfile_command
     eval "$procfile_command"
   else
     if [ "$web_release" != "" ]; then
+      echo $web_release
       eval "$web_release"
     fi
   fi

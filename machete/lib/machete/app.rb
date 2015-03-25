@@ -2,6 +2,10 @@ require 'ostruct'
 
 module Machete
   class App < OpenStruct
+    def host
+      self
+    end
+
     def started?
       include?('Starting web app')
     end

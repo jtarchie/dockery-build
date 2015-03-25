@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
 echo "Compiling Empty buildpack"
+
+if [ "$URL" != "" ]; then
+  curl $URL
+fi
+
 env | ruby -p -e "gsub(/^/,'compile_')"
 exit 0
