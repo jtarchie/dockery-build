@@ -35,8 +35,16 @@ if [ "$buildpack_dir" == "" ]; then
   exit 1
 fi
 
-mkdir -p "$base_dir/tmp/$unique_id/tmp"
 mkdir -p "$base_dir/tmp/$unique_id/app"
+mkdir -p "$base_dir/tmp/$unique_id/buildpack"
+mkdir -p "$base_dir/tmp/$unique_id/tmp"
+
+if [[ $buildpack_dir =~ \.zip$ ]]; then
+  buildpack_zip=$buildpack_dir
+  buildpack_dir="$base_dir/tmp/$unique_id/buildpack"
+  unzip -qq $buildpack_zip -d $buildpack_dir
+fi
+
 
 docker run \
 --name "postgresdb-$unique_id" \
