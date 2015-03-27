@@ -2,7 +2,7 @@ RSpec::Matchers.define :have_logged do |expected_entry|
   include Machete::Retries
 
   match do |app|
-    wait_until(timeout: 3) { app.include?(expected_entry) }
+    wait_until(timeout: 15) { app.include?(expected_entry) }
   end
 
   failure_message do |app|

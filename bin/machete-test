@@ -17,11 +17,7 @@ run_spec() {
 
   echo "Running stack '$CF_STACK' in '$BUILDPACK_MODE' mode"
 
-<<<<<<< HEAD
-  bundle exec rspec cf_spec/
-=======
-  bundle exec rspec -f RSpec::Instafail cf_spec/
->>>>>>> run all machete tests for a buildpack
+  bundle exec rspec -f RSpec::Instafail --color cf_spec/
 }
 
 time (

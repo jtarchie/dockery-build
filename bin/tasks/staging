@@ -26,6 +26,9 @@ for env_var in "${env_vars[@]}"; do
 done
 
 #run buildpack
-/var/vcap/buildpack/bin/detect "$(pwd)" cache
-/var/vcap/buildpack/bin/compile "$(pwd)" cache
-/var/vcap/buildpack/bin/release "$(pwd)" cache > .release.log
+echo "-> Running buildpack detect"
+/var/vcap/buildpack/bin/detect "$(pwd)" $cache
+echo "-> Running buildpack compile"
+/var/vcap/buildpack/bin/compile "$(pwd)" $cache
+echo "-> Running buildpack release"
+/var/vcap/buildpack/bin/release "$(pwd)" $cache > .release.log

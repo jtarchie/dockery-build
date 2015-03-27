@@ -9,4 +9,9 @@ RSpec::Matchers.define :be_running do |_|
     "App is not running. Logs are:\n" +
       app.contents
   end
+
+  failure_message_when_negated do |app|
+    "App is running. Logs are:\n" +
+      app.contents
+  end
 end

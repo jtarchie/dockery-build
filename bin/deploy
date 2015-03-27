@@ -38,6 +38,7 @@ fi
 mkdir -p "$base_dir/tmp/$unique_id/app"
 mkdir -p "$base_dir/tmp/$unique_id/buildpack"
 mkdir -p "$base_dir/tmp/$unique_id/tmp"
+chmod -R 1777 $base_dir/tmp
 
 if [[ $buildpack_dir =~ \.zip$ ]]; then
   buildpack_zip=$buildpack_dir
