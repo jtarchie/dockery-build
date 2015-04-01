@@ -1,8 +1,8 @@
-RSpec::Matchers.define :be_running do |_|
+RSpec::Matchers.define :be_running do |timeout=60|
   include Machete::Retries
 
   match do |app|
-    wait_until(timeout: 60) { app.include?('Starting web app') }
+    wait_until(timeout: timeout) { app.include?('Starting web app') }
   end
 
   failure_message do |app|

@@ -6,6 +6,10 @@ module Machete
 
     def visit_path(path)
       wait_until(timeout: 10) { @response = open("http://localhost:5000#{path}") }
+    rescue
+      warn "---- Log from app ----"
+      warn app.contents
+      raise
     end
 
     def body

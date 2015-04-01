@@ -10,7 +10,6 @@ export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
 export HOME="/home/vcap/app"
 export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
 export PORT="3000"
-export TMPDIR="/home/vcap/tmp"
 export VCAP_APPLICATION="{}"
 export VCAP_APP_HOST="0.0.0.0"
 export VCAP_APP_PORT=$PORT
@@ -19,6 +18,8 @@ export VCAP_SERVICES="[]"
 start_command=""
 env_vars=()
 
+echo "ARGS: $@ $#"
+
 while getopts ":c:e:" o; do
   case "${o}" in
     c)
@@ -26,6 +27,7 @@ while getopts ":c:e:" o; do
     e)
       env_vars+=("$OPTARG");;
   esac
+  shift
 done
 
 for env_var in "${env_vars[@]}"; do

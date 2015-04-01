@@ -24,7 +24,9 @@ while getopts ":a:b:c:e:p:s:u:" o; do
     p)
       port=${OPTARG};;
     s)
-      stack=${OPTARG};;
+      stack=${OPTARG}
+      app_args+=("-s")
+      app_args+=("${OPTARG}");;
     u)
       unique_id=${OPTARG};;
   esac
@@ -37,7 +39,6 @@ fi
 
 mkdir -p "$base_dir/tmp/$unique_id/app"
 mkdir -p "$base_dir/tmp/$unique_id/buildpack"
-mkdir -p "$base_dir/tmp/$unique_id/tmp"
 chmod -R 1777 $base_dir/tmp
 
 if [[ $buildpack_dir =~ \.zip$ ]]; then
@@ -45,7 +46,6 @@ if [[ $buildpack_dir =~ \.zip$ ]]; then
   buildpack_dir="$base_dir/tmp/$unique_id/buildpack"
   unzip -qq $buildpack_zip -d $buildpack_dir
 fi
-
 
 docker run \
 --name "postgresdb-$unique_id" \
@@ -57,8 +57,7 @@ docker run \
 -v "$buildpack_dir:/var/vcap/buildpack:ro" \
 -v "$app_dir:/var/vcap/src:ro" \
 -v "$base_dir/:/var/vcap/dockery:ro" \
--v "$base_dir/tmp/$unique_id/tmp:/home/vcap/tmp" \
 -v "$base_dir/tmp/$unique_id/app:/home/vcap/app" \
 -p "$port:3000" \
 -e "CF_STACK=$stack" \
--it dockery-build-"$stack" /var/vcap/dockery/bin/run $(printf "%q" "${app_args[*]}")
+-it dockery-build-"$stack" /var/vcap/dockery/bin/run "$@"

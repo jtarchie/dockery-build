@@ -5,7 +5,9 @@ set -eo pipefail
 echo "Staging app with buildpack"
 cd /home/vcap/app
 
-cache="/home/vcap/tmp/cache"
+mkdir -p /tmp/cache
+cache="/tmp/cache"
+
 export DATABASE_URL="postgres://postgres:postgres@postgres:5432/postgres"
 export MEMORY_LIMIT="$(free -m -t | grep 'Mem:' | awk '{print $2}')m"
 export STAGING_TIMEOUT="1000"
@@ -13,13 +15,19 @@ export VCAP_APPLICATION="{}"
 export VCAP_SERVICES="[]"
 
 env_vars=()
+stack=""
 
-while getopts ":e:" o; do
+while getopts ":e:s:" o; do
   case "${o}" in
     e)
       env_vars+=("$OPTARG");;
+    s)
+      stack=${OPTARG};;
   esac
+  shift
 done
+
+export CF_STACK=$stack
 
 for env_var in "${env_vars[@]}"; do
   eval "export $env_var"

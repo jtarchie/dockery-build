@@ -19,7 +19,7 @@ def deploy_app(buildpack:, app:, start_command: nil, env: {}, stack: 'lucid64')
                            stack: stack,
                            env: env
                           )
-  expect(app).to be_running
+  expect(app).to be_running(15)
 
   app
 end
