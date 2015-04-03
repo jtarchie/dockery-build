@@ -50,7 +50,9 @@ procfile_command=$(ruby -ryaml -e "puts YAML.load(File.read('Procfile'))['web'] 
 
 echo -n "Starting web app with -- "
 
-if [ "$start_command" != "" ]; then
+trap 'echo "0 of 1 instances running, 1 down"' ERR INT
+
+(if [ "$start_command" != "" ]; then
   echo $start_command
   eval $start_command
 else
@@ -63,5 +65,7 @@ else
       eval "$web_release"
     fi
   fi
-fi
+fi) &
 
+echo "1 of 1 instance running, 1 started"
+fg

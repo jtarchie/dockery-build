@@ -27,14 +27,15 @@ time (
   bundle install
 
   bundle exec buildpack-packager uncached
-  bundle exec buildpack-packager cached
-
   uncached_zip=$(ls $PWD/*_buildpack-v*.zip | head -n 1)
-  cached_zip=$(ls $PWD/*_buildpack-cached*.zip | head -n 1)
 
   run_spec "lucid64" "online" $uncached_zip
-  run_spec "lucid64" "offline" $cached_zip
   run_spec "cflinuxfs2" "online" $uncached_zip
+
+  bundle exec buildpack-packager cached
+  cached_zip=$(ls $PWD/*_buildpack-cached*.zip | head -n 1)
+
+  run_spec "lucid64" "offline" $cached_zip
   run_spec "cflinuxfs2" "offline" $cached_zip
 
   git co cf.Gemfile*
