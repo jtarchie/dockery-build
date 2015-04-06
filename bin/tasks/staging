@@ -15,19 +15,16 @@ export VCAP_APPLICATION="{}"
 export VCAP_SERVICES="[]"
 
 env_vars=()
-stack=""
 
 while getopts ":e:s:" o; do
   case "${o}" in
     e)
       env_vars+=("$OPTARG");;
-    s)
-      stack=${OPTARG};;
   esac
   shift
 done
 
-export CF_STACK=$stack
+export CF_STACK=$(cat /etc/.cf_stack)
 
 for env_var in "${env_vars[@]}"; do
   eval "export $env_var"

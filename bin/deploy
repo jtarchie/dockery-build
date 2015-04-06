@@ -7,7 +7,6 @@ stack="lucid64"
 unique_id=$(date +%s)
 
 base_dir=$( cd "$(dirname $(dirname $0) )"; pwd )
-app_args=()
 
 while getopts ":a:b:c:e:p:s:u:" o; do
   case "${o}" in
@@ -15,18 +14,10 @@ while getopts ":a:b:c:e:p:s:u:" o; do
       app_dir=${OPTARG};;
     b)
       buildpack_dir=${OPTARG};;
-    c)
-      app_args+=("-c")
-      app_args+=("${OPTARG}");;
-    e)
-      app_args+=("-e")
-      app_args+=("${OPTARG}");;
     p)
       port=${OPTARG};;
     s)
-      stack=${OPTARG}
-      app_args+=("-s")
-      app_args+=("${OPTARG}");;
+      stack=${OPTARG};;
     u)
       unique_id=${OPTARG};;
   esac
@@ -59,5 +50,4 @@ docker run \
 -v "$base_dir/:/var/vcap/dockery:ro" \
 -v "$base_dir/tmp/$unique_id/app:/home/vcap/app" \
 -p "$port:3000" \
--e "CF_STACK=$stack" \
 -it dockery-build-"$stack" /var/vcap/dockery/bin/run "$@"

@@ -18,8 +18,6 @@ export VCAP_SERVICES="[]"
 start_command=""
 env_vars=()
 
-echo "ARGS: $@ $#"
-
 while getopts ":c:e:" o; do
   case "${o}" in
     c)
@@ -52,20 +50,38 @@ echo -n "Starting web app with -- "
 
 trap 'echo "0 of 1 instances running, 1 down"' ERR INT
 
-(if [ "$start_command" != "" ]; then
-  echo $start_command
-  eval $start_command
-else
-  if [ "$procfile_command" != "" ]; then
-    echo $procfile_command
-    eval "$procfile_command"
+run_app() {
+  if [ "$start_command" != "" ]; then
+    echo $start_command
+    eval $start_command
   else
-    if [ "$web_release" != "" ]; then
-      echo $web_release
-      eval "$web_release"
+    if [ "$procfile_command" != "" ]; then
+      echo $procfile_command
+      eval "$procfile_command"
+    else
+      if [ "$web_release" != "" ]; then
+        echo $web_release
+        eval "$web_release"
+      fi
     fi
   fi
-fi) &
+}
 
-echo "1 of 1 instance running, 1 started"
-fg
+ping_app() {
+  set +e
+  counter=0
+  until nc -z -w 5 localhost $PORT; do
+    if [[ "$counter" -gt 10 ]]; then
+      exit 1
+    fi
+    sleep 1
+    let counter++
+  done
+  set -e
+
+  echo "1 of 1 instances running, 1 started"
+}
+
+run_app &
+ping_app &
+wait

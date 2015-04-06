@@ -3,8 +3,7 @@ RSpec::Matchers.define :be_running do |timeout=60|
 
   match do |app|
     wait_until(timeout: timeout) do
-      app.include?('1 of 1 instances running, 1 started') &&
-      !app.include?('0 of 1 instances running, 1 down')
+      app.include?('1 of 1 instances running, 1 started')
     end
   end
 
