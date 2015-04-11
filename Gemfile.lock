@@ -2,8 +2,8 @@ PATH
   remote: ./machete
   specs:
     machete (0.0.1)
+      httparty
       rspec
-      session
 
 GEM
   remote: https://rubygems.org/
@@ -35,7 +35,6 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.2.0)
     rspec-support (3.2.1)
-    session (3.2.0)
     slop (3.6.0)
 
 PLATFORMS

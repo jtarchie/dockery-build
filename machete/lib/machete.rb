@@ -1,3 +1,4 @@
+require 'httparty'
 require 'machete/retries'
 require 'machete/app'
 require 'machete/browser'
@@ -7,6 +8,8 @@ require 'machete/matchers'
 require 'machete/version'
 
 module Machete
+  extend Retries
+
   ROOT_PATH = File.join(File.dirname(__FILE__), '..', '..')
 
   def self.deploy_app(app_name, with_pg: true, app_path: nil, buildpack_path: ENV['BUILDPACK_PATH'], env: {}, start_command: nil, stack: ENV['CF_STACK'])
@@ -33,10 +36,13 @@ module Machete
 
     deploy_cmd = cmds.shelljoin
 
-    App.new(
+    app = App.new(
       name: app_name,
       command: Command.new(deploy_cmd)
     )
+
+    wait_until(timeout: 60) { app.staged? }
+    app
   end
 
   module BuildpackMode
@@ -53,6 +59,12 @@ module Machete
     class DeleteApp
       def execute(app)
         app.exit!
+      end
+    end
+
+    class CLI
+      def self.url_for_app(*)
+        'localhost:5000'
       end
     end
   end

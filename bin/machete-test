@@ -2,7 +2,8 @@
 
 set -exo pipefail
 
-buildpack_dir=${1-""}
+buildpack_dir=${1-""}; shift
+rspec_args=${*-"cf_spec/"}
 base_dir=$( cd "$(dirname $(dirname $0) )"; pwd )
 
 if [ "$buildpack_dir" == "" ]; then
@@ -17,7 +18,7 @@ run_spec() {
 
   echo "Running stack '$CF_STACK' in '$BUILDPACK_MODE' mode"
 
-  bundle exec rspec -f RSpec::Instafail --color cf_spec/
+  bundle exec rspec -f RSpec::Instafail --color $rspec_args
 }
 
 time (
@@ -27,7 +28,7 @@ time (
     git co cf.Gemfile*
   }
 
-  trap cleanup INT #cleanup after yourself on Ctrl+C
+  trap cleanup INT EXIT #cleanup after yourself on Ctrl+C
   export BUNDLE_GEMFILE=cf.Gemfile
   ruby -i -pe "gsub(/^.*machete.*$/, 'gem \'machete\', path: \'${base_dir}/machete\'')" cf.Gemfile
   bundle install

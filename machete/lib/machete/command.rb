@@ -17,6 +17,7 @@ module Machete
       @thread = Thread.new do
         while buffer = stdout.read(1)
           @output += buffer
+          print buffer
         end
       end
     end

@@ -37,3 +37,4 @@ echo "-> Running buildpack compile"
 /var/vcap/buildpack/bin/compile "$(pwd)" $cache
 echo "-> Running buildpack release"
 /var/vcap/buildpack/bin/release "$(pwd)" $cache > .release.log
+echo "-> Uploading droplet (`du -hs $(pwd) | cut -f1`)"
